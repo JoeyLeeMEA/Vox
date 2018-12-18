@@ -55,10 +55,9 @@ public class Context: NSObject {
     }
     
     @discardableResult func mapResource(for data: NSMutableDictionary) -> Resource? {
-        guard let id = data["id"] as? String else {
+//        guard let id = data["id"] as? String else {
 //            fatalError("Resource id must be defined")
-            data["id"] = UUID().uuidString
-        }
+//        }
         
         guard let type = data["type"] as? String else {
             fatalError("Resource type must be defined")
@@ -67,6 +66,9 @@ public class Context: NSObject {
         guard let resourceClass = self.resourceClass(for: type) else {
             return nil
         }
+        
+        let id = data["id"] as? String ?? UUID().uuidString
+        
         let resource = resourceClass.init(context: self)
         resource.id = (id as NSString).copy() as? String
         resource.type = (type as NSString).copy() as! String
