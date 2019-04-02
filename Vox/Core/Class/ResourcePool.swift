@@ -1,21 +1,20 @@
 import Foundation
 
 class ResourcePool {
-    private let queue: DispatchQueue
+    private let queue = DispatchQueue(label: "vox.resource.queue", attributes: .concurrent)
     
     private var mapTable: NSMapTable<NSString, Resource>
     
-    init(queue: DispatchQueue) {
-        self.queue = queue
+    init() {
         self.mapTable = NSMapTable<NSString, Resource>(keyOptions: [.strongMemory], valueOptions: [.strongMemory])
     }
     
     func addResource(_ resource: Resource) {
-        queue.async(flags: .barrier) {
+        queue.sync(flags: .barrier) {
             self.mapTable.setObject(resource, forKey: self.keyForResource(resource) as NSString)
         }
     }
-    
+
     func resource(forBasicObject basicObject: [String: String]) -> Resource? {
         var value: Resource?
         
@@ -27,7 +26,7 @@ class ResourcePool {
     }
     
     func reassignContext(_ context: Context) {
-        queue.async(flags: .barrier) {
+        queue.sync(flags: .barrier) {
             let newMapTable = NSMapTable<NSString, Resource>(keyOptions: [.strongMemory], valueOptions: [.weakMemory], capacity: self.mapTable.count)
         
             self.mapTable.dictionaryRepresentation().forEach { (key, resource) in

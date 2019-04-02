@@ -4,7 +4,7 @@ public class Context: NSObject {
     private static var classes: [String: Resource.Type] = [:]
     
     let dictionary: NSMutableDictionary
-    lazy var resourcePool = ResourcePool(queue: queue)
+    lazy var resourcePool = ResourcePool()
     
     public init(dictionary: NSMutableDictionary) {
         self.dictionary = dictionary
