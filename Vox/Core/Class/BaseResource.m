@@ -80,7 +80,22 @@
 id value(Resource *resource, SEL _cmd) {
     NSString *key = NSStringFromSelector(_cmd);
     
-    return [resource valueForKey:key];
+    id value = [resource valueForKey:key];
+    if (value != nil) {
+        if ([[value class] isSubclassOfClass:[NSDictionary class]]) {
+            NSString *propertyType = getPropertyType([resource class], key);
+            if ([propertyType containsString: @"NSArray"]) {
+                value = nil;
+            }
+        }
+        if ([[value class] isSubclassOfClass:[NSArray class]]) {
+            NSString *propertyType = getPropertyType([resource class], key);
+            if ([propertyType containsString: @"NSDictionary"]) {
+                value = nil;
+            }
+        }
+    }
+    return value;
 }
     
 void setValue(Resource *resource, SEL _cmd, id value) {
@@ -95,6 +110,15 @@ NSString* PropertyNameForSetterSelector(SEL selector) {
     propertyName = [propertyName substringToIndex:propertyName.length - 1];
     
     return propertyName;
+}
+
+NSString *getPropertyType(Class class, NSString *name) {
+    const char *type = property_getAttributes(class_getProperty(class, name.UTF8String));
+    NSString *typeString = [NSString stringWithUTF8String:type];
+    NSArray *attributes = [typeString componentsSeparatedByString:@","];
+    NSString *typeAttribute = [attributes objectAtIndex:0];
+    NSString *propertyType = [typeAttribute substringFromIndex:1];
+    return propertyType;
 }
     
 @end
