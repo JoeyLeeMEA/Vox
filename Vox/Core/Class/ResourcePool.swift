@@ -15,6 +15,15 @@ class ResourcePool {
         }
     }
 
+    func addResourceIfNotExists(_ resource: Resource) {
+        queue.sync(flags: .barrier) {
+            let key = self.keyForResource(resource) as NSString
+            if self.mapTable.object(forKey: key) == nil {
+                self.mapTable.setObject(resource, forKey: key)
+            }
+        }
+    }
+
     func resource(forBasicObject basicObject: [String: String]) -> Resource? {
         var value: Resource?
         

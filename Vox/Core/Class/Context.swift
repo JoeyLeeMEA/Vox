@@ -74,7 +74,26 @@ public class Context: NSObject {
         resource.type = (type as NSString).copy() as! String
         resourcePool.addResource(resource)
         resource.object = data
-        
+
+        // add relationship objects into resourcePool, even though they are missing in the `included` object.
+        if let relationships = data["relationships"] as? NSMutableDictionary {
+            for (key, value) in relationships {
+                if var type = key as? String, let dict = (value as? NSMutableDictionary) {
+                    if let dataObject = dict.object(forKey: "data") {
+                        if let data = dataObject as? NSMutableDictionary {
+                            addRelationshipResource(type: type, data: data)
+                        } else if let dataArray = dataObject as? NSMutableArray {
+                            for dataInArray in dataArray {
+                                if let data = dataInArray as? NSMutableDictionary {
+                                    addRelationshipResource(type: type, data: data)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return resource
     }
     
@@ -86,6 +105,16 @@ public class Context: NSObject {
     
     func reassign() {
         resourcePool.reassignContext(self)
+    }
+
+    private func addRelationshipResource(type: String, data: NSMutableDictionary) {
+        if let resourceClass = self.resourceClass(for: type) {
+            let id = data["id"] as? String ?? UUID().uuidString
+
+            let resource = resourceClass.init(context: self)
+            resource.id = (id as NSString).copy() as? String
+            resourcePool.addResourceIfNotExists(resource)
+        }
     }
 }
 
