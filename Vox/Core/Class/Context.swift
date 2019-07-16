@@ -13,7 +13,7 @@ public class Context: NSObject {
     let queue = DispatchQueue(label: "vox.context.queue", attributes: .concurrent)
     
     @objc public static func registerClass(_ resourceClass: Resource.Type) {
-        classes[resourceClass.resourceType] = resourceClass
+        classes[resourceClass.resourceType.lowercased()] = resourceClass
     }
     
     func dataType() -> DataType {
@@ -98,7 +98,7 @@ public class Context: NSObject {
     }
     
     func resourceClass(for type: String) -> Resource.Type? {
-        guard let resourceClass = Context.classes[type] else { return nil }
+        guard let resourceClass = Context.classes[type.lowercased()] else { return nil }
         
         return resourceClass
     }
