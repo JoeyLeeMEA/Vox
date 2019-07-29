@@ -98,6 +98,49 @@ open class Resource: BaseResource {
         
         return ["data": dictionary]
     }
+    public func documentDictionaryWithIncluded() throws -> [String: Any] {
+        do {
+            var dictionary = try self.documentDictionary()
+
+            let relationships = self.relationships
+            if let relationships = relationships,
+                relationships.count > 0 {
+
+                var included: NSMutableArray?
+                context?.queue.sync {
+                    if let allKeys = relationships.allKeys as? [String] {
+                        for key in allKeys {
+                            func addToIncluded(resource: Resource) {
+                                if let resourceDocumentDictionary = try? resource.documentDictionary() {
+                                    if let resourceDataDocumentDictionary = resourceDocumentDictionary["data"] {
+                                        if included == nil {
+                                            included = NSMutableArray()
+                                        }
+                                        included?.add(resourceDataDocumentDictionary)
+                                    }
+                                }
+                            }
+                            if let value = self.value(forKey: key) {
+                                if let resources = value as? [Resource] {
+                                    for resource in resources {
+                                        addToIncluded(resource: resource)
+                                    }
+                                } else if let resource = value as? Resource {
+                                    addToIncluded(resource: resource)
+                                }
+                            }
+                        }
+                    }
+                }
+                if let included = included {
+                    dictionary["included"] = included
+                }
+            }
+            return dictionary
+        } catch {
+            throw error
+        }
+    }
     
     public func documentData() throws -> Data {
         let data = try JSONSerialization.data(withJSONObject: documentDictionary(), options: [])
@@ -151,6 +194,53 @@ extension Array where Element: Resource {
         }
         
         return ["data": array]
+    }
+
+    public func documentDictionaryWithIncluded() throws -> [String: Any] {
+        do {
+            var dictionary = try self.documentDictionary()
+
+            var included: NSMutableArray?
+
+            try forEach { (resource) in
+                let relationships = resource.relationships
+                if let relationships = relationships,
+                    relationships.count > 0 {
+
+                    resource.context?.queue.sync {
+                        if let allKeys = relationships.allKeys as? [String] {
+                            for key in allKeys {
+                                func addToIncluded(resource: Resource) {
+                                    if let resourceDocumentDictionary = try? resource.documentDictionary() {
+                                        if let resourceDataDocumentDictionary = resourceDocumentDictionary["data"] {
+                                            if included == nil {
+                                                included = NSMutableArray()
+                                            }
+                                            included?.add(resourceDataDocumentDictionary)
+                                        }
+                                    }
+                                }
+                                if let value = resource.value(forKey: key) {
+                                    if let resources = value as? [Resource] {
+                                        for resource in resources {
+                                            addToIncluded(resource: resource)
+                                        }
+                                    } else if let resource = value as? Resource {
+                                        addToIncluded(resource: resource)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if let included = included {
+                dictionary["included"] = included
+            }
+            return dictionary
+        } catch {
+            throw error
+        }
     }
     
     public func documentData() throws -> Data {
