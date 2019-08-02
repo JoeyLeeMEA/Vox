@@ -119,6 +119,21 @@ open class Resource: BaseResource {
                                         included?.add(resourceDataDocumentDictionary)
                                     }
                                 }
+                                if let relationships = resource.relationships {
+                                    if let allKeys = relationships.allKeys as? [String] {
+                                        for key in allKeys {
+                                            if let value = resource.value(forKey: key) {
+                                                if let resources = value as? [Resource] {
+                                                    for resource in resources {
+                                                        addToIncluded(resource: resource)
+                                                    }
+                                                } else if let resource = value as? Resource {
+                                                    addToIncluded(resource: resource)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             if let value = self.value(forKey: key) {
                                 if let resources = value as? [Resource] {
@@ -217,6 +232,21 @@ extension Array where Element: Resource {
                                                 included = NSMutableArray()
                                             }
                                             included?.add(resourceDataDocumentDictionary)
+                                        }
+                                    }
+                                    if let relationships = resource.relationships {
+                                        if let allKeys = relationships.allKeys as? [String] {
+                                            for key in allKeys {
+                                                if let value = resource.value(forKey: key) {
+                                                    if let resources = value as? [Resource] {
+                                                        for resource in resources {
+                                                            addToIncluded(resource: resource)
+                                                        }
+                                                    } else if let resource = value as? Resource {
+                                                        addToIncluded(resource: resource)
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }

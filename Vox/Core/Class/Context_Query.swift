@@ -33,11 +33,11 @@ extension Context {
     
     func setValue(_ value: Any?, forKey key: String, inResource resource: Resource) {
         if let resource = value as? Resource {
-            resource.context = self
+            //resource.context = self
             resourcePool.addResource(resource)
         } else if let collection = value as? [Resource] {
             collection.forEach({ (resource) in
-                resource.context = self
+                //resource.context = self
                 resourcePool.addResource(resource)
             })
         }
