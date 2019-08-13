@@ -85,16 +85,8 @@ open class Resource: BaseResource {
         if let id = id {
             dictionary["id"] = id
         }
-        
-        if let attributes = attributes,
-            attributes.count > 0 {
-            dictionary["attributes"] = attributes
-        }
-        
-        if let relationships = relationships,
-            relationships.count > 0 {
-            dictionary["relationships"] = relationships
-        }
+        dictionary["attributes"] = attributes ?? NSMutableDictionary()
+        dictionary["relationships"] = relationships ?? NSMutableDictionary()
         
         return ["data": dictionary]
     }
@@ -194,16 +186,8 @@ extension Array where Element: Resource {
                 "id": id,
                 "type": resource.type
             ]
-            
-            if let attributes = attributes,
-                attributes.count > 0 {
-                dictionary["attributes"] = attributes
-            }
-            
-            if let relationships = relationships,
-                relationships.count > 0 {
-                dictionary["relationships"] = relationships
-            }
+            dictionary["attributes"] = attributes ?? NSMutableDictionary()
+            dictionary["relationships"] = relationships ?? NSMutableDictionary()
             
             return dictionary
         }
