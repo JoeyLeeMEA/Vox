@@ -104,11 +104,24 @@ open class Resource: BaseResource {
                         for key in allKeys {
                             func addToIncluded(resource: Resource) {
                                 if let resourceDocumentDictionary = try? resource.documentDictionary() {
-                                    if let resourceDataDocumentDictionary = resourceDocumentDictionary["data"] {
+                                    if let resourceDataDocumentDictionary = resourceDocumentDictionary["data"] as? [String: Any] {
                                         if included == nil {
                                             included = NSMutableArray()
                                         }
-                                        included?.add(resourceDataDocumentDictionary)
+                                        if let resourceDataDocumentDictionaryId = resourceDataDocumentDictionary["id"] as? String {
+                                            let contains = included?.contains(where: { (resourceInInlucded) -> Bool in
+                                                if let resourceDataInInlucded = resourceInInlucded as? [String : Any] {
+                                                    if let resourceDataInInlucdedId = resourceDataInInlucded["id"] as? String {
+                                                        return resourceDataInInlucdedId == resourceDataDocumentDictionaryId
+                                                    }
+                                                }
+                                                return false
+                                            }) ?? false
+                                            // add to `included` if there is no duplication
+                                            if !contains {
+                                                included?.add(resourceDataDocumentDictionary)
+                                            }
+                                        }
                                     }
                                 }
                                 if let relationships = resource.relationships {
@@ -211,11 +224,24 @@ extension Array where Element: Resource {
                             for key in allKeys {
                                 func addToIncluded(resource: Resource) {
                                     if let resourceDocumentDictionary = try? resource.documentDictionary() {
-                                        if let resourceDataDocumentDictionary = resourceDocumentDictionary["data"] {
+                                        if let resourceDataDocumentDictionary = resourceDocumentDictionary["data"] as? [String: Any] {
                                             if included == nil {
                                                 included = NSMutableArray()
                                             }
-                                            included?.add(resourceDataDocumentDictionary)
+                                            if let resourceDataDocumentDictionaryId = resourceDataDocumentDictionary["id"] as? String {
+                                                let contains = included?.contains(where: { (resourceInInlucded) -> Bool in
+                                                    if let resourceDataInInlucded = resourceInInlucded as? [String : Any] {
+                                                        if let resourceDataInInlucdedId = resourceDataInInlucded["id"] as? String {
+                                                            return resourceDataInInlucdedId == resourceDataDocumentDictionaryId
+                                                        }
+                                                    }
+                                                    return false
+                                                }) ?? false
+                                                // add to `included` if there is no duplication
+                                                if !contains {
+                                                    included?.add(resourceDataDocumentDictionary)
+                                                }
+                                            }
                                         }
                                     }
                                     if let relationships = resource.relationships {
