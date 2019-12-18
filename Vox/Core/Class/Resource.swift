@@ -108,11 +108,14 @@ open class Resource: BaseResource {
                                         if included == nil {
                                             included = NSMutableArray()
                                         }
-                                        if let resourceDataDocumentDictionaryId = resourceDataDocumentDictionary["id"] as? String {
+                                        if let resourceDataDocumentDictionaryId = resourceDataDocumentDictionary["id"] as? String,
+                                            let resourceDataDocumentDictionaryType = resourceDataDocumentDictionary["type"] as? String {
                                             let contains = included?.contains(where: { (resourceInInlucded) -> Bool in
                                                 if let resourceDataInInlucded = resourceInInlucded as? [String : Any] {
-                                                    if let resourceDataInInlucdedId = resourceDataInInlucded["id"] as? String {
-                                                        return resourceDataInInlucdedId == resourceDataDocumentDictionaryId
+                                                    if let resourceDataInInlucdedId = resourceDataInInlucded["id"] as? String,
+                                                        let resourceDataInInlucdedType = resourceDataInInlucded["type"] as? String {
+                                                        return resourceDataInInlucdedId == resourceDataDocumentDictionaryId &&
+                                                            resourceDataInInlucdedType == resourceDataDocumentDictionaryType
                                                     }
                                                 }
                                                 return false
@@ -228,11 +231,14 @@ extension Array where Element: Resource {
                                             if included == nil {
                                                 included = NSMutableArray()
                                             }
-                                            if let resourceDataDocumentDictionaryId = resourceDataDocumentDictionary["id"] as? String {
+                                            if let resourceDataDocumentDictionaryId = resourceDataDocumentDictionary["id"] as? String,
+                                                let resourceDataDocumentDictionaryType = resourceDataDocumentDictionary["type"] as? String {
                                                 let contains = included?.contains(where: { (resourceInInlucded) -> Bool in
                                                     if let resourceDataInInlucded = resourceInInlucded as? [String : Any] {
-                                                        if let resourceDataInInlucdedId = resourceDataInInlucded["id"] as? String {
-                                                            return resourceDataInInlucdedId == resourceDataDocumentDictionaryId
+                                                        if let resourceDataInInlucdedId = resourceDataInInlucded["id"] as? String,
+                                                            let resourceDataInInlucdedType = resourceDataInInlucded["type"] as? String {
+                                                            return resourceDataInInlucdedId == resourceDataDocumentDictionaryId &&
+                                                                resourceDataInInlucdedType == resourceDataDocumentDictionaryType
                                                         }
                                                     }
                                                     return false
